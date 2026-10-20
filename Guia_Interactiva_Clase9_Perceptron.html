@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva Clase 9 — Construyan el Perceptrón Completo (Roles y Solución)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            800: '#1e293b',
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6.5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        pre, code { font-family: 'Fira Code', monospace; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-xl"></i>
+        <span id="toast-msg" class="font-medium text-sm">¡Copiado al portapapeles!</span>
+    </div>
+
+    <!-- HEADER STICKY -->
+    <header class="sticky top-0 z-40 bg-dark-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white shadow-lg">
+                    <i class="fa-solid fa-seedling text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-extrabold text-base tracking-tight text-white">Clase 9: Perceptrón Completo</span>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Cooperativa Cartago</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Guía paso a paso desde cero · Roles oficiales · Código y Respuestas del Informe</p>
+                </div>
+            </div>
+
+            <nav class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+                <a href="#entender" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition">1. Entender el Tema</a>
+                <a href="#roles" class="px-3 py-1.5 rounded-lg bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 transition">2. Guía por Roles</a>
+                <a href="#mision0" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition">3. Misión 0</a>
+                <a href="#retos" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-300 transition">4. Los 7 Retos</a>
+                <a href="#informe" class="px-3 py-1.5 rounded-lg bg-violet-600/20 border border-violet-500/30 hover:bg-violet-600/30 text-violet-300 transition">5. Respuestas Informe</a>
+                <a href="#codigo-completo" class="px-3 py-1.5 rounded-lg bg-amber-600/20 border border-amber-500/30 hover:bg-amber-600/30 text-amber-300 transition">6. Código Completo</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 1: ENTENDER EL TEMA EN LENGUAJE SENCILLO             -->
+        <!-- ============================================================ -->
+        <section id="entender" class="space-y-6">
+            <div class="bg-gradient-to-br from-dark-900 to-dark-850 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Explicación sin enredos — Para entender todo en 5 minutos</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    1. ¿Qué estamos construyendo en realidad?
+                </h1>
+                <p class="text-slate-300 mt-3 leading-relaxed">
+                    Aunque la guía mezcla matemáticas, programación y agricultura, toda la actividad gira alrededor de <strong>una sola idea</strong>: enseñarle a una neurona artificial a estimar <strong>qué tan probable es (de 0% a 100%) que una cosecha sea exitosa</strong> en la zona rural de Cartago.
+                </p>
+
+                <!-- Diagrama visual de flujo -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-dark-950/80 border border-slate-800 rounded-xl p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-1">1. Datos de entrada (X)</div>
+                        <p class="text-sm font-semibold text-white">Lo que medimos en cada lote (120 lotes)</p>
+                        <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                            <li>🌧️ <strong>Precipitación (\(x_1\)):</strong> Lluvia mensual (40 a 260 mm).</li>
+                            <li>🌡️ <strong>Temperatura (\(x_2\)):</strong> Promedio (21 a 31 °C).</li>
+                        </ul>
+                        <div class="mt-3 p-2 rounded bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300">
+                            Regla oculta del ejercicio: <strong>Más lluvia ayuda (+)</strong> y <strong>más calor perjudica (−)</strong>.
+                        </div>
+                    </div>
+
+                    <div class="bg-dark-950/80 border border-slate-800 rounded-xl p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">2. La Neurona Nueva</div>
+                        <p class="text-sm font-semibold text-white">Calcula un puntaje y lo vuelve probabilidad</p>
+                        <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                            <li>1️⃣ Multiplica entradas por pesos: \(z = x_1 w_1 + x_2 w_2 + b\)</li>
+                            <li>2️⃣ Pasa \(z\) por la <strong>Sigmoide</strong> para obtener un valor entre <code>0.0</code> y <code>1.0</code>.</li>
+                        </ul>
+                        <div class="mt-3 p-2 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+                            Aprende ajustando \(w_1, w_2, b\) durante <strong>500 épocas</strong> (500 pasadas por los 120 lotes).
+                        </div>
+                    </div>
+
+                    <div class="bg-dark-950/80 border border-slate-800 rounded-xl p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">3. Salida para la Cooperativa</div>
+                        <p class="text-sm font-semibold text-white">Probabilidad para priorizar asistencia</p>
+                        <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                            <li>✅ <strong>Probabilidad alta (ej. 99%):</strong> Lote seguro (cosecha exitosa <code>1</code>).</li>
+                            <li>⚠️ <strong>Cerca de 50% (ej. 55%):</strong> Lote en la frontera (incertidumbre).</li>
+                            <li>🚨 <strong>Probabilidad baja (ej. 0.1%):</strong> Alto riesgo de pérdida (<code>0</code>).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Las 5 mejoras clave -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-bold text-white mb-3">
+                        <i class="fa-solid fa-arrow-up-right-dots text-emerald-400 mr-2"></i>
+                        ¿Qué tenía de malo la neurona de la Clase 8 y qué le agregamos hoy?
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-800/90 text-slate-200 border-b border-slate-700">
+                                    <th class="p-3">Pieza</th>
+                                    <th class="p-3 text-rose-300">Neurona Clase 8 (Antigua)</th>
+                                    <th class="p-3 text-emerald-300">Perceptrón Clase 9 (Nuevo)</th>
+                                    <th class="p-3">¿En qué Reto se hace?</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 bg-dark-950/60">
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">1. Velocidad de cálculo</td>
+                                    <td class="p-3 text-slate-400">Recorría lote por lote con un ciclo <code>for</code> (lento).</td>
+                                    <td class="p-3 text-slate-200"><strong>Vectorización con NumPy (<code>@</code>):</strong> calcula los 120 lotes en 1 sola línea.</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-xs">RETO 1</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">2. Función de activación</td>
+                                    <td class="p-3 text-slate-400"><strong>Escalón:</strong> solo dice <code>0</code> o <code>1</code> a secas. No dice qué tan segura está.</td>
+                                    <td class="p-3 text-slate-200"><strong>Sigmoide:</strong> convierte el puntaje en una probabilidad suave entre <code>0</code> y <code>1</code>.</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-xs">RETO 2</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">3. Medición del error</td>
+                                    <td class="p-3 text-slate-400">Solo contaba cuántos errores tuvo (le daba igual fallar por poco o por mucho).</td>
+                                    <td class="p-3 text-slate-200"><strong>Entropía Cruzada Binaria:</strong> castiga durísimo cuando se equivoca con mucha seguridad.</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-xs">RETO 3</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">4. Forma de aprender</td>
+                                    <td class="p-3 text-slate-400">Cambiaba los pesos a lo brusco con cada lote individual.</td>
+                                    <td class="p-3 text-slate-200"><strong>Descenso del Gradiente:</strong> promedia el error de todos los lotes y baja suave "cuesta abajo".</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-xs">RETO 4A y 4B</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">5. Escala de los datos</td>
+                                    <td class="p-3 text-slate-400">Metía lluvia (260) y temperatura (26) crudos: los pesos explotaban.</td>
+                                    <td class="p-3 text-slate-200"><strong>Estandarización (Z-score):</strong> deja ambas columnas con media <code>0</code> y desviación <code>1</code>.</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-xs">RETO 5 y 7</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Simulador Interactivo de la Sigmoide -->
+                <div class="mt-6 bg-dark-950 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-blue-400">Simulador Interactivo (Para entender el Reto 2 y Reto 6)</span>
+                            <h3 class="text-base font-bold text-white mt-0.5">Explora cómo la función Sigmoide convierte el puntaje \(z\) en probabilidad</h3>
+                            <p class="text-xs text-slate-400 mt-1">Mueve el control deslizante: nota que cuando <code>z = 0</code>, la probabilidad es exactamente <strong>50.0%</strong> (la frontera de decisión).</p>
+                        </div>
+                        <div class="text-right shrink-0 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800">
+                            <div class="text-xs text-slate-400">Probabilidad \(\sigma(z)\)</div>
+                            <div id="sig-prob" class="text-2xl font-extrabold text-emerald-400 font-mono">50.00%</div>
+                            <div id="sig-msg" class="text-[11px] text-amber-300">Justo en la frontera (z = 0)</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs font-mono text-slate-400 mb-1">
+                            <span>z = -6.0 (0.25%)</span>
+                            <span id="sig-z-label" class="text-white font-bold">Puntaje z = 0.0</span>
+                            <span>z = +6.0 (99.75%)</span>
+                        </div>
+                        <input id="sig-slider" type="range" min="-6" max="6" step="0.1" value="0" class="w-full accent-blue-500 cursor-pointer" oninput="updateSigmoid(this.value)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 2: ROLES CLAROS (SIN ABCD, POR NOMBRE DEL ROL)       -->
+        <!-- ============================================================ -->
+        <section id="roles" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Organización del Equipo</span>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">2. Guía de Acción por Rol (Qué hace y qué programa cada rol)</h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        La guía exige que <strong>todos programen al menos una vez</strong> y que <strong>cualquiera pueda explicar el código al profesor</strong>. Aquí el archivo <code>perceptron_reto.py</code> está dividido en <strong>4 turnos de teclado</strong> usando directamente la etiqueta de cada rol.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- ROL 1: COORDINADOR -->
+                <div class="bg-dark-900 border-2 border-blue-500/40 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                <i class="fa-solid fa-compass mr-1.5"></i> ROL 1: COORDINADOR(A)
+                            </span>
+                            <span class="text-xs font-mono text-slate-400">Etiqueta en código: <code class="text-blue-400"># [Coordinador]</code></span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Responsabilidad General en la Clase</h3>
+                        <ul class="mt-2 space-y-1.5 text-xs sm:text-sm text-slate-300">
+                            <li>⏱️ <strong>Controla los tiempos:</strong> Min 40 (Misión 0 lista), Min 52 (Retos 1–3), Min 65 (Retos 4A–5), Min 75 (Retos 6–7).</li>
+                            <li>🗣️ <strong>Vocero(a) oficial:</strong> Es quien habla con el docente y coordina el cambio de turno en el teclado.</li>
+                            <li>🚀 <strong>Al inicio:</strong> Ejecuta <code>python generar_datos.py</code> y <code>python neurona_clase8.py</code> (Misión 0).</li>
+                        </ul>
+
+                        <div class="mt-4 pt-4 border-t border-slate-800">
+                            <div class="text-xs font-bold uppercase text-blue-400 mb-2">💻 Su Turno de Programar (Turno 1 en teclado)</div>
+                            <p class="text-xs text-slate-300 mb-2">Resuelve <strong>RETO 1 (Vectorización)</strong> y <strong>RETO 2 (Función Sigmoide)</strong>:</p>
+                            <pre class="bg-dark-950 p-3 rounded-lg border border-slate-800 text-xs text-blue-200 overflow-x-auto"><code># En suma_ponderada(X, w, b):
+# [Coordinador]
+return X @ w + b
+
+# En sigmoide(z):
+# [Coordinador]
+return 1 / (1 + np.exp(-z))</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200">
+                        <strong>🛡️ Qué responder si el profesor te pregunta:</strong><br>
+                        • <em>"¿Qué hace <code>X @ w + b</code>?"</em> → Multiplica la matriz <code>X</code> (120 lotes × 2 variables) por el vector de pesos <code>w</code> de una sola vez sin usar ciclos <code>for</code>, y le suma el sesgo <code>b</code>.<br>
+                        • <em>"¿Por qué usamos Sigmoide y no Escalón?"</em> → Porque el escalón solo da 0 o 1 y su derivada es plana (no sirve para descenso del gradiente). La sigmoide da probabilidades entre 0 y 1 y tiene curva suave.
+                    </div>
+                </div>
+
+                <!-- ROL 2: VERIFICADOR -->
+                <div class="bg-dark-900 border-2 border-emerald-500/40 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <i class="fa-solid fa-magnifying-glass-chart mr-1.5"></i> ROL 2: VERIFICADOR(A)
+                            </span>
+                            <span class="text-xs font-mono text-slate-400">Etiqueta en código: <code class="text-emerald-400"># [Verificador]</code></span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Responsabilidad General en la Clase</h3>
+                        <ul class="mt-2 space-y-1.5 text-xs sm:text-sm text-slate-300">
+                            <li>✅ <strong>Valida cada punto de control:</strong> Revisa en la consola que salga <code>[OK] RETO X superado</code> y se lo dicta al Relator.</li>
+                            <li>👀 <strong>Revisa la comprensión:</strong> Antes de pasar al siguiente reto, verifica que todos entiendan la línea escrita.</li>
+                            <li>⚠️ <strong>En el grupo de 3 personas:</strong> El Coordinador asume también este rol.</li>
+                        </ul>
+
+                        <div class="mt-4 pt-4 border-t border-slate-800">
+                            <div class="text-xs font-bold uppercase text-emerald-400 mb-2">💻 Su Turno de Programar (Turno 2 en teclado)</div>
+                            <p class="text-xs text-slate-300 mb-2">Resuelve <strong>RETO 3 (Pérdida Logarítmica)</strong> y <strong>RETO 4A (Gradientes)</strong>:</p>
+                            <pre class="bg-dark-950 p-3 rounded-lg border border-slate-800 text-xs text-emerald-200 overflow-x-auto"><code># En calcular_perdida(y_real, y_prob):
+# [Verificador]
+return -np.mean(y_real * np.log(y_prob) + (1 - y_real) * np.log(1 - y_prob))
+
+# En calcular_gradientes(X, y_real, y_prob):
+# [Verificador]
+error = y_prob - y_real
+gradiente_w = (X.T @ error) / len(y_real)
+gradiente_b = np.mean(error)</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200">
+                        <strong>🛡️ Qué responder si el profesor te pregunta:</strong><br>
+                        • <em>"¿Qué mide <code>calcular_perdida</code>?"</em> → Es la entropía cruzada binaria: mide qué tan malas son las probabilidades predichas. Si el modelo está muy seguro pero se equivoca, el logaritmo da un castigo grande.<br>
+                        • <em>"¿Por qué se usa <code>X.T</code> en el gradiente?"</em> → Transponemos <code>X</code> (pasa de 120×2 a 2×120) para multiplicar cada columna (lluvia y temperatura) por el vector de 120 errores y sacar el promedio dividiendo por <code>len(y_real)</code>.
+                    </div>
+                </div>
+
+                <!-- ROL 3: PROGRAMADOR -->
+                <div class="bg-dark-900 border-2 border-amber-500/40 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                <i class="fa-solid fa-code mr-1.5"></i> ROL 3: PROGRAMADOR(A)
+                            </span>
+                            <span class="text-xs font-mono text-slate-400">Etiqueta en código: <code class="text-amber-400"># [Programador]</code></span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Responsabilidad General en la Clase</h3>
+                        <ul class="mt-2 space-y-1.5 text-xs sm:text-sm text-slate-300">
+                            <li>🖥️ <strong>Configura el entorno Docker/VSCode:</strong> Deja lista la carpeta <code>clase9</code> y la terminal interactiva.</li>
+                            <li>🔥 <strong>Protagonista del momento clave (Reto 4B → Reto 5):</strong> Primero ejecuta con el Reto 4B resuelto (sin hacer aún el Reto 5) para ver cómo falla sin escalar, y luego resuelve el Reto 5.</li>
+                            <li>🧪 <strong>Ejecuta el Experimento Final (A, B o C)</strong> al terminar los 7 retos.</li>
+                        </ul>
+
+                        <div class="mt-4 pt-4 border-t border-slate-800">
+                            <div class="text-xs font-bold uppercase text-amber-400 mb-2">💻 Su Turno de Programar (Turno 3 en teclado)</div>
+                            <p class="text-xs text-slate-300 mb-2">Resuelve <strong>RETO 4B (Actualizar pesos)</strong> y <strong>RETO 5 (Estandarizar entradas)</strong>:</p>
+                            <pre class="bg-dark-950 p-3 rounded-lg border border-slate-800 text-xs text-amber-200 overflow-x-auto"><code># En el ciclo for (RETO 4B):
+# [Programador]
+w = w - tasa_aprendizaje * gradiente_w
+b = b - tasa_aprendizaje * gradiente_b
+
+# Antes del entrenamiento (RETO 5):
+# [Programador]
+media = X.mean(axis=0)
+desviacion = X.std(axis=0)
+X_esc = (X - media) / desviacion</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200">
+                        <strong>🛡️ Qué responder si el profesor te pregunta:</strong><br>
+                        • <em>"¿Por qué restamos el gradiente en lugar de sumarlo?"</em> → Porque el gradiente apunta hacia donde la pérdida <strong>sube</strong>, y queremos ir "cuesta abajo" para minimizar el error.<br>
+                        • <em>"¿Por qué es obligatorio el Reto 5?"</em> → Porque la lluvia llega a 260 y la temperatura a 31. Sin escalar sale <code>RuntimeWarning: overflow in exp</code> y la pérdida sube a 5.28. Al estandarizar con Z-score (media 0, desviación 1), la pérdida baja a 0.2281 y la exactitud sube a 90%.
+                    </div>
+                </div>
+
+                <!-- ROL 4: RELATOR -->
+                <div class="bg-dark-900 border-2 border-violet-500/40 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                                <i class="fa-solid fa-file-pen mr-1.5"></i> ROL 4: RELATOR(A)
+                            </span>
+                            <span class="text-xs font-mono text-slate-400">Etiqueta en código: <code class="text-violet-400"># [Relator]</code></span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Responsabilidad General en la Clase</h3>
+                        <ul class="mt-2 space-y-1.5 text-xs sm:text-sm text-slate-300">
+                            <li>📝 <strong>Completa <code>Plantilla_Informe_Clase9.docx</code> en vivo:</strong> Va copiando de la <a href="#informe" class="text-violet-400 underline">Sección 5 de esta guía</a> las respuestas de cada reto mientras el grupo avanza.</li>
+                            <li>🖼️ <strong>Pega las 3 imágenes generadas:</strong> <code>diagnostico_clase8.png</code>, <code>curva_aprendizaje.png</code> y <code>frontera_decision.png</code>.</li>
+                            <li>📤 <strong>Exporta a PDF al final:</strong> Guarda como <code>Informe_Clase9_GrupoX.pdf</code> para subir a AVACO junto con <code>perceptron_reto.py</code>.</li>
+                        </ul>
+
+                        <div class="mt-4 pt-4 border-t border-slate-800">
+                            <div class="text-xs font-bold uppercase text-violet-400 mb-2">💻 Su Turno de Programar (Turno 4 en teclado)</div>
+                            <p class="text-xs text-slate-300 mb-2">Resuelve <strong>RETO 6 (Frontera de decisión)</strong> y <strong>RETO 7 (Predecir lotes nuevos)</strong>:</p>
+                            <pre class="bg-dark-950 p-3 rounded-lg border border-slate-800 text-xs text-violet-200 overflow-x-auto"><code># En RETO 6 (frontera de decisión):
+# [Relator]
+x2_esc = -(w[0] * x1_esc + b) / w[1]
+
+# En RETO 7 (predicción de lotes nuevos):
+# [Relator]
+lotes_nuevos_esc = (lotes_nuevos - media) / desviacion</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-xl bg-violet-950/40 border border-violet-500/30 text-xs text-violet-200">
+                        <strong>🛡️ Qué responder si el profesor te pregunta:</strong><br>
+                        • <em>"¿De dónde sale la fórmula de <code>x2_esc</code> en el Reto 6?"</em> → La frontera es donde la neurona tiene 50% de probabilidad, que en la sigmoide ocurre cuando <code>z = 0</code>. Si igualamos <code>w[0]*x1 + w[1]*x2 + b = 0</code> y despejamos <code>x2</code>, queda <code>-(w[0]*x1 + b) / w[1]</code>.<br>
+                        • <em>"¿Por qué en el Reto 7 usamos <code>media</code> y <code>desviacion</code> viejas?"</em> → Porque el modelo aprendió con la regla de los 120 lotes originales; cualquier lote nuevo debe medirse con esa misma regla.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 3: MISIÓN 0 (DIAGNÓSTICO)                            -->
+        <!-- ============================================================ -->
+        <section id="mision0" class="space-y-6">
+            <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-400">Minuto 10 al 40</span>
+                        <h2 class="text-2xl font-extrabold text-white">3. Misión 0: Diagnóstico de la Neurona de la Clase 8</h2>
+                    </div>
+                    <span class="px-3 py-1 rounded-lg bg-slate-800 text-xs font-mono text-slate-300">Comando: <code>python neurona_clase8.py</code></span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    <div class="space-y-3 text-sm text-slate-300">
+                        <p>Al ejecutar <code>neurona_clase8.py</code> con los 120 lotes reales de Cartago, esto es lo que ocurre en consola:</p>
+                        <ul class="space-y-2 text-xs sm:text-sm bg-dark-950 p-4 rounded-xl border border-slate-800">
+                            <li>🔴 <strong>Errores por época:</strong> Empieza con 50 errores en la época 1, sube a 52 en la época 2, luego oscila entre 29 y 35 errores y termina en la época 30 con <strong>31 errores (77.50% de exactitud)</strong>. Nunca llega a 0.</li>
+                            <li>📈 <strong>Explosión de pesos:</strong> Empiezan en <code>0.1</code> y terminan en <code>w1 = 33.86</code>, <code>w2 = -139.20</code> y <code>b = 3.60</code>. Como la lluvia vale hasta 260, cada error multiplica <code>0.1 × 260 = ±26</code> de un solo golpe.</li>
+                            <li>❓ <strong>Predicción a ciegas:</strong> Para el lote de <code>150 mm</code> y <code>26 °C</code> responde <code>1</code>, pero justo ahí el cultivo está en la línea límite (~50% de riesgo).</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-xl p-2 shadow-lg">
+                        <img src="clase9/src/diagnostico_clase8.png" onerror="this.onerror=null;this.src='src/diagnostico_clase8.png';" alt="Diagnóstico Clase 8" class="w-full rounded-lg">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 4: LOS 7 RETOS PASO A PASO                           -->
+        <!-- ============================================================ -->
+        <section id="retos" class="space-y-6">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Minuto 40 al 75 — Paso a Paso</span>
+                <h2 class="text-2xl font-extrabold text-white mt-1">4. Solución Explicada de los 7 Retos (con Etiquetas de Rol)</h2>
+                <p class="text-sm text-slate-400 mt-1">
+                    Importante: En clase, si quieren ver la advertencia y los datos de la tabla <strong>"Antes del Reto 5"</strong>, primero completen los Retos 1, 2, 3, 4A y 4B dejando el Reto 5 sin tocar, ejecuten una vez, miren la consola, y luego sí peguen el Reto 5.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+
+                <!-- RETO 1 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 font-bold text-xs">RETO 1</span>
+                            <h3 class="font-bold text-white">Vectorización en <code>suma_ponderada(X, w, b)</code></h3>
+                        </div>
+                        <span class="text-xs font-semibold text-blue-400"><i class="fa-solid fa-user-Astronaut mr-1"></i> Digita: Coordinador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> <code>X</code> tiene 120 filas y 2 columnas. <code>w</code> tiene 2 pesos. El operador <code>@</code> multiplica cada fila por los pesos (\(x_1 w_1 + x_2 w_2\)) para los 120 lotes simultáneamente, y luego suma <code>b</code>.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto1" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>    # [Coordinador]
+    return X @ w + b</code></pre>
+                        <button onclick="copyText('code-reto1')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 2 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 font-bold text-xs">RETO 2</span>
+                            <h3 class="font-bold text-white">Activación con Probabilidad en <code>sigmoide(z)</code></h3>
+                        </div>
+                        <span class="text-xs font-semibold text-blue-400"><i class="fa-solid fa-user-astronaut mr-1"></i> Digita: Coordinador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> Aplica la fórmula \(\frac{1}{1 + e^{-z}}\) usando <code>np.exp(-z)</code>. Transforma cualquier puntaje negativo o positivo en una probabilidad entre 0 y 1.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto2" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>    # [Coordinador]
+    return 1 / (1 + np.exp(-z))</code></pre>
+                        <button onclick="copyText('code-reto2')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 3 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold text-xs">RETO 3</span>
+                            <h3 class="font-bold text-white">Entropía Cruzada Binaria en <code>calcular_perdida(y_real, y_prob)</code></h3>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-400"><i class="fa-solid fa-user-check mr-1"></i> Digita: Verificador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> Cuando <code>y_real = 1</code> funciona la primera parte <code>y_real * np.log(y_prob)</code>; cuando <code>y_real = 0</code> funciona la segunda parte <code>(1 - y_real) * np.log(1 - y_prob)</code>. El signo menos <code>-np.mean(...)</code> convierte el logaritmo negativo en una pérdida positiva que queremos llevar a cero.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto3" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>    # [Verificador]
+    return -np.mean(y_real * np.log(y_prob) + (1 - y_real) * np.log(1 - y_prob))</code></pre>
+                        <button onclick="copyText('code-reto3')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 4A -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold text-xs">RETO 4A</span>
+                            <h3 class="font-bold text-white">Dirección del Aprendizaje en <code>calcular_gradientes(X, y_real, y_prob)</code></h3>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-400"><i class="fa-solid fa-user-check mr-1"></i> Digita: Verificador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> Primero calculamos qué tan lejos estuvo la probabilidad predicha de la realidad (<code>error = y_prob - y_real</code>). Luego multiplicamos las entradas transpuestas <code>X.T</code> por ese error y dividimos por la cantidad de lotes para obtener el promedio de cada peso.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto4a" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>    # [Verificador]
+    error = y_prob - y_real
+    gradiente_w = (X.T @ error) / len(y_real)
+    gradiente_b = np.mean(error)</code></pre>
+                        <button onclick="copyText('code-reto4a')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 4B -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-bold text-xs">RETO 4B</span>
+                            <h3 class="font-bold text-white">Paso de Aprendizaje (Descenso del Gradiente en el ciclo <code>for</code>)</h3>
+                        </div>
+                        <span class="text-xs font-semibold text-amber-400"><i class="fa-solid fa-laptop-code mr-1"></i> Digita: Programador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> Como el gradiente indica hacia dónde <em>crece</em> el error, restamos <code>tasa_aprendizaje * gradiente</code> para caminar cuesta abajo hacia el mínimo error.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto4b" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>    # [Programador]
+    w = w - tasa_aprendizaje * gradiente_w
+    b = b - tasa_aprendizaje * gradiente_b</code></pre>
+                        <button onclick="copyText('code-reto4b')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 5 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-bold text-xs">RETO 5</span>
+                            <h3 class="font-bold text-white">Preparación de Entradas (Estandarización Z-score)</h3>
+                        </div>
+                        <span class="text-xs font-semibold text-amber-400"><i class="fa-solid fa-laptop-code mr-1"></i> Digita: Programador(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> <code>axis=0</code> calcula el promedio y la desviación estándar por columna (columna 0 = lluvia, columna 1 = temperatura). Al restar la media y dividir por la desviación, ambas variables quedan centradas en 0 y con escala comparable.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto5" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code># [Programador]
+media = X.mean(axis=0)
+desviacion = X.std(axis=0)
+X_esc = (X - media) / desviacion</code></pre>
+                        <button onclick="copyText('code-reto5')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 6 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-violet-500/20 text-violet-300 font-bold text-xs">RETO 6</span>
+                            <h3 class="font-bold text-white">Frontera de Decisión (Despejar <code>x2_esc</code> cuando <code>z = 0</code>)</h3>
+                        </div>
+                        <span class="text-xs font-semibold text-violet-400"><i class="fa-solid fa-pen-nib mr-1"></i> Digita: Relator(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> La frontera de decisión es donde la probabilidad es exactamente 0.5, lo cual ocurre cuando el puntaje \(z = w_0 x_1 + w_1 x_2 + b = 0\). Despejando \(x_2\) obtenemos la recta azul que separa las cosechas exitosas de las no exitosas.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto6" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code># [Relator]
+x2_esc = -(w[0] * x1_esc + b) / w[1]</code></pre>
+                        <button onclick="copyText('code-reto6')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETO 7 -->
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded bg-violet-500/20 text-violet-300 font-bold text-xs">RETO 7</span>
+                            <h3 class="font-bold text-white">Predecir Lotes Nuevos (Estandarizar con la media de entrenamiento)</h3>
+                        </div>
+                        <span class="text-xs font-semibold text-violet-400"><i class="fa-solid fa-pen-nib mr-1"></i> Digita: Relator(a)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-3">
+                        <strong>¿Por qué se hace así?</strong> Los 3 lotes nuevos vienen en milímetros y grados Celsius. Antes de pasarlos por el modelo, debemos transformarlos usando exactamente la misma <code>media</code> y <code>desviacion</code> calculadas con los 120 lotes en el Reto 5.
+                    </p>
+                    <div class="relative">
+                        <pre id="code-reto7" class="bg-dark-950 p-3.5 rounded-lg border border-slate-800 text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code># [Relator]
+lotes_nuevos_esc = (lotes_nuevos - media) / desviacion</code></pre>
+                        <button onclick="copyText('code-reto7')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Gráficos Finales Generados -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-white mb-2">📊 Gráfico Generado 1: <code>curva_aprendizaje.png</code></h4>
+                    <div class="bg-white rounded-lg p-2">
+                        <img src="clase9/src/curva_aprendizaje.png" onerror="this.onerror=null;this.src='src/curva_aprendizaje.png';" alt="Curva de aprendizaje" class="w-full rounded">
+                    </div>
+                </div>
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-white mb-2">📊 Gráfico Generado 2: <code>frontera_decision.png</code></h4>
+                    <div class="bg-white rounded-lg p-2">
+                        <img src="clase9/src/frontera_decision.png" onerror="this.onerror=null;this.src='src/frontera_decision.png';" alt="Frontera de decisión" class="w-full rounded">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 5: GUÍA DEL INFORME WORD (LISTA PARA EL RELATOR)     -->
+        <!-- ============================================================ -->
+        <section id="informe" class="space-y-6">
+            <div class="bg-dark-900 border-2 border-violet-500/30 rounded-2xl p-6 sm:p-8 shadow-xl space-y-8">
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                        Sección Especial para el Relator(a)
+                    </span>
+                    <h2 class="text-2xl font-extrabold text-white mt-2">
+                        5. Respuestas Completas para <code>Plantilla_Informe_Clase9.docx</code>
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Aquí están redactadas todas las secciones en el orden exacto de la plantilla de Word (siguiendo la estructura <em>Dato → Hallazgo → Implicación</em>).
+                    </p>
+                </div>
+
+                <!-- 1. Diagnóstico (Misión 0) -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-bold text-violet-300 border-b border-slate-800 pb-2">Sección 1 del Word: Diagnóstico (Misión 0)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                        <div class="bg-dark-950 p-4 rounded-xl border border-slate-800">
+                            <p class="font-bold text-white mb-1">1. ¿La neurona llega a cero errores? ¿Qué pasa de una época a otra?</p>
+                            <p class="text-slate-300">No llega a cero errores: empieza con 50 errores y oscila entre 29 y 35 errores por época, terminando con 31 errores (77.50% de exactitud). Esto ocurre porque los datos reales tienen ruido natural (no son perfectamente separables) y porque actualiza los pesos bruscamente lote por lote sin estandarizar.</p>
+                        </div>
+                        <div class="bg-dark-950 p-4 rounded-xl border border-slate-800">
+                            <p class="font-bold text-white mb-1">2. ¿Qué ocurre con el tamaño de w1 y w2? ¿Por qué?</p>
+                            <p class="text-slate-300">Crecen desproporcionadamente: pasan de <code>0.1</code> a <code>w1 = 33.86</code> y <code>w2 = -139.20</code> mientras el sesgo <code>b</code> queda en <code>3.60</code>. Sucede porque la regla multiplica el error por el valor directo de lluvia (hasta 260 mm) y temperatura (hasta 31 °C), provocando saltos gigantes en cada error.</p>
+                        </div>
+                        <div class="bg-dark-950 p-4 rounded-xl border border-slate-800">
+                            <p class="font-bold text-white mb-1">3. ¿Qué tan segura está para el lote de 150 mm y 26 °C? ¿Le sirve a la cooperativa?</p>
+                            <p class="text-slate-300">Responde <code>1</code>, pero no sabemos qué tan segura está porque la función escalón solo entrega 0 o 1. No le sirve a la cooperativa agrícola porque un lote de 150 mm y 26 °C está justo en la zona límite de incertidumbre y la cooperativa necesita probabilidades para priorizar la asistencia técnica.</p>
+                        </div>
+                        <div class="bg-dark-950 p-4 rounded-xl border border-slate-800">
+                            <p class="font-bold text-white mb-1">4. ¿Qué pasaría con 1 millón de lotes?</p>
+                            <p class="text-slate-300">Como recorre los lotes uno por uno mediante un ciclo <code>for</code> en Python puro, 30 épocas implicarían 30 millones de iteraciones secuenciales, haciendo el entrenamiento extremadamente lento. Se requiere vectorización matricial con NumPy.</p>
+                        </div>
+                    </div>
+                    <div class="bg-dark-950 p-4 rounded-xl border border-slate-800 text-xs sm:text-sm">
+                        <p class="font-bold text-white mb-1">5. Hipótesis del grupo — ¿Qué le falta a la neurona de la Clase 8?</p>
+                        <p class="text-slate-300">Le faltan cinco piezas: (1) Vectorizar las operaciones con matrices en NumPy para no usar ciclos <code>for</code> por lote; (2) Cambiar la función escalón por una función continua como la Sigmoide que entregue probabilidades entre 0 y 1; (3) Una función de pérdida continua (entropía cruzada) que mida la calidad de esas probabilidades; (4) Actualizar los pesos con el promedio de los gradientes de todos los lotes (descenso del gradiente); y (5) Estandarizar las variables de entrada para que la lluvia y la temperatura tengan escalas comparables.</p>
+                    </div>
+                </div>
+
+                <!-- 2. Bitácora de Retos -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-bold text-violet-300 border-b border-slate-800 pb-2">Sección 2 del Word: Bitácora de Retos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-2.5">Reto</th>
+                                    <th class="p-2.5">Piloto (Rol)</th>
+                                    <th class="p-2.5">¿Qué faltaba?</th>
+                                    <th class="p-2.5">¿Cómo lo descubrieron?</th>
+                                    <th class="p-2.5">Evidencia (Consola)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 bg-dark-950">
+                                <tr>
+                                    <td class="p-2.5 font-bold text-blue-300">RETO 1</td>
+                                    <td class="p-2.5">Coordinador(a)</td>
+                                    <td class="p-2.5">Calcular la suma ponderada \(z = Xw + b\) para los 120 lotes a la vez sin ciclos <code>for</code>.</td>
+                                    <td class="p-2.5">Revisando la pista sobre el operador de multiplicación matricial <code>@</code> de NumPy visto en la Clase 4.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 1 (vectorización) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-blue-300">RETO 2</td>
+                                    <td class="p-2.5">Coordinador(a)</td>
+                                    <td class="p-2.5">La función de activación sigmoide \(\sigma(z) = \frac{1}{1+e^{-z}}\) para obtener probabilidades entre 0 y 1.</td>
+                                    <td class="p-2.5">Consultando la fórmula de la sigmoide con <code>np.exp(-z)</code> y verificando que en \(z=0\) da \(0.5\).</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 2 (función sigmoide) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-emerald-300">RETO 3</td>
+                                    <td class="p-2.5">Verificador(a)</td>
+                                    <td class="p-2.5">La pérdida de entropía cruzada binaria para penalizar probabilidades equivocadas.</td>
+                                    <td class="p-2.5">Aplicando el promedio negativo de \(y \ln(p) + (1-y)\ln(1-p)\) con <code>np.log</code> y <code>np.mean</code>.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 3 (función de pérdida) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-emerald-300">RETO 4A</td>
+                                    <td class="p-2.5">Verificador(a)</td>
+                                    <td class="p-2.5">Calcular la dirección y magnitud del cambio (gradientes de <code>w</code> y <code>b</code>) promediando en los 120 lotes.</td>
+                                    <td class="p-2.5">Calculando <code>error = y_prob - y_real</code> y multiplicando por la transpuesta <code>X.T</code> dividida entre <code>n</code>.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 4A (gradientes) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-amber-300">RETO 4B</td>
+                                    <td class="p-2.5">Programador(a)</td>
+                                    <td class="p-2.5">Actualizar los pesos y el sesgo en cada época restando el gradiente multiplicado por la tasa de aprendizaje.</td>
+                                    <td class="p-2.5">Restando <code>tasa_aprendizaje * gradiente</code> para descender en dirección opuesta al aumento del error.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 4B (actualización de pesos) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-amber-300">RETO 5</td>
+                                    <td class="p-2.5">Programador(a)</td>
+                                    <td class="p-2.5">Estandarizar las columnas de <code>X</code> (media 0 y desviación 1) para evitar desbordamiento numérico.</td>
+                                    <td class="p-2.5">Al entrenar sin escalar apareció <code>RuntimeWarning: overflow in exp</code> y pérdida alta (5.2830); aplicamos Z-score.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 5 (preparación de las entradas) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-violet-300">RETO 6</td>
+                                    <td class="p-2.5">Relator(a)</td>
+                                    <td class="p-2.5">Despejar la coordenada <code>x2_esc</code> de la recta donde la probabilidad es 0.5 (\(z = 0\)).</td>
+                                    <td class="p-2.5">Igualando \(w_0 x_1 + w_1 x_2 + b = 0\) y despejando \(x_2 = -(w_0 x_1 + b)/w_1\).</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 6 (frontera de decisión) superado</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-violet-300">RETO 7</td>
+                                    <td class="p-2.5">Relator(a)</td>
+                                    <td class="p-2.5">Escalar los 3 lotes nuevos usando la misma media y desviación del conjunto de entrenamiento.</td>
+                                    <td class="p-2.5">Transformando <code>(lotes_nuevos - media) / desviacion</code> con los parámetros guardados en el Reto 5.</td>
+                                    <td class="p-2.5 font-mono text-emerald-400">[OK] RETO 7 (predicción de lotes nuevos) superado</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. Tabla de Resultados (Antes vs Después del Reto 5 + Predicciones) -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-bold text-violet-300 border-b border-slate-800 pb-2">Sección 3 del Word: Tabla de Resultados (Datos Reales Exactos)</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                                <thead>
+                                    <tr class="bg-slate-800 text-slate-200">
+                                        <th class="p-2.5">Resultado</th>
+                                        <th class="p-2.5 text-rose-300">Antes del Reto 5 (Sin escalar)</th>
+                                        <th class="p-2.5 text-emerald-300">Después del Reto 5 (Estandarizado)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 bg-dark-950">
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">Pérdida inicial (Época 1)</td>
+                                        <td class="p-2.5 font-mono">0.6931</td>
+                                        <td class="p-2.5 font-mono">0.6931</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">Pérdida final (Época 500)</td>
+                                        <td class="p-2.5 font-mono text-rose-400">5.2830 (empeoró)</td>
+                                        <td class="p-2.5 font-mono text-emerald-400">0.2281 (bajó correctamente)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">Exactitud final</td>
+                                        <td class="p-2.5 font-mono text-rose-400">74.17%</td>
+                                        <td class="p-2.5 font-mono text-emerald-400">90.00% (108 de 120 lotes)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">w1 / w2 / b</td>
+                                        <td class="p-2.5 font-mono">w1=3.3155, w2=-25.2997, b=0.1440</td>
+                                        <td class="p-2.5 font-mono">w1=2.6217, w2=-2.3658, b=0.3152</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">¿Apareció advertencia?</td>
+                                        <td class="p-2.5 text-rose-300">Sí: <code>RuntimeWarning: overflow encountered in exp</code></td>
+                                        <td class="p-2.5 text-emerald-300">No, ninguna advertencia.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                                <thead>
+                                    <tr class="bg-slate-800 text-slate-200">
+                                        <th class="p-2.5">Lote Nuevo</th>
+                                        <th class="p-2.5">Probabilidad</th>
+                                        <th class="p-2.5">Decisión</th>
+                                        <th class="p-2.5">Interpretación para la Cooperativa</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 bg-dark-950">
+                                    <tr>
+                                        <td class="p-2.5 font-mono">220 mm / 23.5 °C</td>
+                                        <td class="p-2.5 font-mono font-bold text-emerald-400">99.48%</td>
+                                        <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold">EXITOSA</span></td>
+                                        <td class="p-2.5 text-slate-300">Alta lluvia y clima fresco: condiciones óptimas, baja prioridad de urgencia.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-mono">60 mm / 30.0 °C</td>
+                                        <td class="p-2.5 font-mono font-bold text-rose-400">0.11%</td>
+                                        <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-xs font-bold">NO EXITOSA</span></td>
+                                        <td class="p-2.5 text-slate-300">Sequía y calor extremo: altísimo riesgo de pérdida, requiere intervención.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-mono">150 mm / 26.0 °C</td>
+                                        <td class="p-2.5 font-mono font-bold text-amber-400">55.65%</td>
+                                        <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-xs font-bold">EXITOSA (Dudosa)</span></td>
+                                        <td class="p-2.5 text-slate-300">Justo cerca del 50%: lote en zona de incertidumbre donde una visita técnica define el éxito.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4, 5, 6 y 7 del Word -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                    <div class="bg-dark-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-violet-300">Sección 4: Interpretación</h4>
+                        <p class="text-slate-300"><strong>• Significado del signo de w1 (+2.6217) y w2 (-2.3658):</strong> Para un agricultor de Cartago, el signo positivo de <code>w1</code> indica que una mayor precipitación mensual aumenta la probabilidad de cosecha exitosa. El signo negativo de <code>w2</code> indica que temperaturas más altas reducen la probabilidad de éxito por estrés térmico e hídrico. Como ambos datos están estandarizados, vemos que ambas variables tienen una importancia similar en magnitud (~2.6 vs ~2.4).</p>
+                        <p class="text-slate-300"><strong>• ¿Qué cambió con el Reto 5 y por qué?:</strong> Antes del Reto 5 la lluvia (40–260) tenía valores casi diez veces mayores que la temperatura (21–31), provocando gradientes gigantescos que desbordaban <code>np.exp(-z)</code> y subían la pérdida a 5.2830. Al estandarizar a media 0 y desviación 1, el descenso del gradiente avanzó suavemente sin advertencias, bajando la pérdida a 0.2281 y subiendo la exactitud de 74.17% a 90.00%.</p>
+                    </div>
+
+                    <div class="bg-dark-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-violet-300">Sección 5: Experimento Final (Las 3 opciones listas, elijan 1)</h4>
+                        <p class="text-slate-300"><strong>• Opción A (Tasa de aprendizaje):</strong> Con <code>0.001</code> el paso es tan corto que tras 500 épocas la pérdida apenas baja de 0.6931 a <strong>0.6289</strong> (aprende demasiado lento). Con <code>1.0</code>, como los datos ya están estandarizados, converge más rápido y llega a una pérdida de <strong>0.2050</strong> y exactitud de <strong>90.00%</strong>.</p>
+                        <p class="text-slate-300"><strong>• Opción B (Número de épocas):</strong> Con <code>20</code> épocas la pérdida queda a medio camino en <strong>0.5021</strong>. Con <code>3000</code> épocas la pérdida llega a <strong>0.2055</strong> (90.83% de exactitud), muy similar al 0.2281 de 500 épocas, demostrando que después de ~500 épocas la mejora es mínima y no vale la pena gastar 6 veces más tiempo de cómputo.</p>
+                        <p class="text-slate-300"><strong>• Opción C (Cuarto lote nuevo <code>[100.0, 28.0]</code>):</strong> Al agregar un lote con poca lluvia (100 mm) y calor alto (28 °C), el modelo predice <strong>2.84% -> NO EXITOSA</strong>, alertando a la cooperativa de un alto riesgo de pérdida.</p>
+                    </div>
+
+                    <div class="bg-dark-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-violet-300">Sección 6: Hipótesis vs. Realidad</h4>
+                        <p class="text-slate-300"><strong>• ¿Qué acertamos?:</strong> Acertamos en que hacía falta cambiar la función escalón por una función que diera probabilidades (Sigmoide) y vectorizar con NumPy para evitar ciclos lentos.</p>
+                        <p class="text-slate-300"><strong>• ¿Qué no nos imaginábamos que faltaba?:</strong> No imaginábamos que incluso teniendo la Sigmoide, la Entropía Cruzada y los Gradientes bien programados, el modelo iba a empeorar su pérdida (a 5.2830) y lanzar un <code>RuntimeWarning</code> si no estandarizábamos antes las columnas con Z-score, ni que los lotes nuevos debían escalarse obligatoriamente con la media y desviación de los 120 lotes originales.</p>
+                    </div>
+
+                    <div class="bg-dark-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-violet-300">Sección 7: Conclusiones y Pregunta Abierta</h4>
+                        <p class="text-slate-300"><strong>1.</strong> Pasar de una función escalón a una sigmoide con entropía cruzada transforma una neurona rígida (0 o 1) en una herramienta de toma de decisiones basada en probabilidades de riesgo.</p>
+                        <p class="text-slate-300"><strong>2.</strong> La estandarización (Z-score) es indispensable para el descenso del gradiente cuando las variables físicas tienen unidades distintas (milímetros vs grados Celsius).</p>
+                        <p class="text-slate-300"><strong>3.</strong> La vectorización con NumPy permite entrenar y evaluar cientos o millones de lotes mediante álgebra matricial limpia y eficiente.</p>
+                        <p class="text-amber-300"><strong>• Pregunta abierta:</strong> <em>¿Qué pasaría si el éxito del cultivo también sufriera cuando llueve en exceso (inundación > 300 mm), donde la frontera entre éxito y fracaso ya no sería una sola línea recta sino una curva?</em></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- SECCIÓN 6: CÓDIGO COMPLETO Y SALIDA FINAL DE CONSOLA         -->
+        <!-- ============================================================ -->
+        <section id="codigo-completo" class="space-y-6">
+            <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Anexo del Informe y Archivo Entregable</span>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">6. Código Completo de <code>perceptron_reto.py</code> y Salida Final</h2>
+                        <p class="text-sm text-slate-400">Listo en <code>Clase 9/clase9/src/perceptron_reto.py</code> con las etiquetas de cada rol.</p>
+                    </div>
+                    <button onclick="copyText('full-python-code')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition shadow-lg">
+                        <i class="fa-regular fa-copy mr-1.5"></i> Copiar perceptron_reto.py Completo
+                    </button>
+                </div>
+
+                <pre id="full-python-code" class="bg-dark-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-200 overflow-x-auto max-h-96"><code>"""
+perceptron_reto.py  –  Actividad grupal Clase 9
+Construcción completa del perceptrón con descenso del gradiente.
+"""
+
+import sys
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+def punto_de_control(superado, reto, pista):
+    """Verifica un reto. Si no está superado, muestra la pista y detiene el programa."""
+    if superado:
+        print(f"[OK] {reto} superado")
+    else:
+        print(f"\n[PENDIENTE] {reto}")
+        print(f"   Pista: {pista}")
+        print("   Complete el reto, guarde con Ctrl + S y vuelva a ejecutar el script.")
+        sys.exit()
+
+
+# ============================================================
+# 1. Cargar los datos
+# ============================================================
+df = pd.read_csv("../data/cultivos_cartago.csv")
+X = df[["precipitacion_mm", "temperatura_c"]].to_numpy()
+y = df["cosecha_exitosa"].to_numpy()
+print(f"Datos: X tiene forma {X.shape} | y tiene forma {y.shape}\n")
+
+
+# ============================================================
+# &gt;&gt;&gt; RETO 1 &lt;&lt;&lt;  Vectorización: todas las sumas ponderadas a la vez
+# ============================================================
+def suma_ponderada(X, w, b):
+    """Debe devolver z = w1*x1 + w2*x2 + b para TODAS las filas de X, sin usar ciclos."""
+    # [Coordinador]
+    return X @ w + b
+
+
+X_and = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+z_and = suma_ponderada(X_and, np.array([0.5, 0.5]), -0.7)
+punto_de_control(
+    z_and is not None and np.allclose(z_and, [-0.7, -0.2, -0.2, 0.3]),
+    "RETO 1 (vectorización)",
+    "Con la neurona AND de la Clase 8 (w=[0.5, 0.5], b=-0.7) se esperaba [-0.7 -0.2 -0.2 0.3]. "
+    "¿Qué operador de NumPy multiplica una matriz por un vector? (Clase 4)",
+)
+
+
+# ============================================================
+# &gt;&gt;&gt; RETO 2 &lt;&lt;&lt;  Una activación que entregue probabilidades
+# ============================================================
+def sigmoide(z):
+    """Debe convertir cualquier número z en un valor entre 0 y 1 (0.5 cuando z = 0)."""
+    # [Coordinador]
+    return 1 / (1 + np.exp(-z))
+
+
+prueba = sigmoide(np.array([-6.0, 0.0, 6.0]))
+punto_de_control(
+    prueba is not None and np.allclose(prueba, [0.0025, 0.5, 0.9975], atol=1e-3),
+    "RETO 2 (función sigmoide)",
+    "Para z = -6, 0 y 6 se esperaba aproximadamente 0.0025, 0.5 y 0.9975. "
+    "Busque la fórmula de la función sigmoide; en NumPy, e elevado a la x es np.exp(x).",
+)
+
+
+def predecir_probabilidad(X, w, b):
+    return sigmoide(suma_ponderada(X, w, b))
+
+
+# ============================================================
+# &gt;&gt;&gt; RETO 3 &lt;&lt;&lt;  Medir qué tan mal predice el modelo
+# ============================================================
+def calcular_perdida(y_real, y_prob):
+    """Pérdida logarítmica (entropía cruzada binaria). Debe devolver UN solo número."""
+    epsilon = 1e-9
+    y_prob = np.clip(y_prob, epsilon, 1 - epsilon)   # evita log(0)
+    # [Verificador]
+    return -np.mean(y_real * np.log(y_prob) + (1 - y_real) * np.log(1 - y_prob))
+
+
+perdida_inicial = calcular_perdida(np.array([1, 0, 1, 0]), np.array([0.5, 0.5, 0.5, 0.5]))
+perdida_segura = calcular_perdida(np.array([1]), np.array([0.9]))
+punto_de_control(
+    perdida_inicial is not None and np.isclose(perdida_inicial, 0.6931, atol=1e-3)
+    and np.isclose(perdida_segura, 0.1054, atol=1e-3),
+    "RETO 3 (función de pérdida)",
+    "Si el modelo dice 0.5 para todo, la pérdida debe ser 0.6931; si acierta con 0.9, debe ser 0.1054. "
+    "Busque 'binary cross entropy'. Use np.log y np.mean.",
+)
+
+
+def calcular_exactitud(y_real, y_prob):
+    return np.mean((y_prob &gt;= 0.5).astype(int) == y_real)
+
+
+# ============================================================
+# &gt;&gt;&gt; RETO 4 (parte A) &lt;&lt;&lt;  ¿Hacia dónde mover los pesos?
+# ============================================================
+def calcular_gradientes(X, y_real, y_prob):
+    """Debe devolver (gradiente_w, gradiente_b) promediando sobre todos los ejemplos."""
+    # [Verificador]
+    error = y_prob - y_real
+    gradiente_w = (X.T @ error) / len(y_real)
+    gradiente_b = np.mean(error)
+    return gradiente_w, gradiente_b
+
+
+gw, gb = calcular_gradientes(np.array([[1.0, 0.0], [0.0, 1.0]]), np.array([1, 0]), np.array([0.5, 0.5]))
+punto_de_control(
+    gw is not None and np.allclose(gw, [-0.25, 0.25]) and np.isclose(gb, 0.0),
+    "RETO 4A (gradientes)",
+    "Con X=[[1,0],[0,1]], y=[1,0] y y_prob=[0.5,0.5] se esperaba gradiente_w=[-0.25 0.25] y gradiente_b=0. "
+    "El error es (y_prob - y_real); el gradiente de w usa la transpuesta de X y se divide por n.",
+)
+
+
+# ============================================================
+# &gt;&gt;&gt; RETO 5 &lt;&lt;&lt;  Preparar las entradas (resuélvalo cuando el punto de control lo pida)
+# ============================================================
+# [Programador]
+media = X.mean(axis=0)
+desviacion = X.std(axis=0)
+X_esc = (X - media) / desviacion
+
+
+# ============================================================
+# 2. Entrenamiento con descenso del gradiente
+# ============================================================
+w = np.zeros(2)
+b = 0.0
+tasa_aprendizaje = 0.1
+epocas = 500
+historial_perdida = []
+historial_exactitud = []
+
+for epoca in range(1, epocas + 1):
+    y_prob = predecir_probabilidad(X_esc, w, b)
+    gradiente_w, gradiente_b = calcular_gradientes(X_esc, y, y_prob)
+
+    # &gt;&gt;&gt; RETO 4 (parte B) &lt;&lt;&lt;  Dar el paso de aprendizaje
+    # [Programador]
+    w = w - tasa_aprendizaje * gradiente_w
+    b = b - tasa_aprendizaje * gradiente_b
+
+    if epoca == 1:
+        punto_de_control(
+            np.allclose(w, -tasa_aprendizaje * gradiente_w) and np.isclose(b, -tasa_aprendizaje * gradiente_b),
+            "RETO 4B (actualización de pesos)",
+            "Los pesos no cambiaron o se movieron en la dirección equivocada. Recuerde la Clase 8: el nuevo peso "
+            "depende del peso anterior, de la tasa de aprendizaje y del gradiente. ¿Se suma o se resta para ir 'cuesta abajo'?",
+        )
+
+    historial_perdida.append(calcular_perdida(y, y_prob))
+    historial_exactitud.append(calcular_exactitud(y, y_prob))
+    if epoca == 1 or epoca % 100 == 0:
+        print(f"Época {epoca:&gt;3} | Pérdida: {historial_perdida[-1]:.4f} | "
+              f"Exactitud: {historial_exactitud[-1]:.2%} | w=[{w[0]:.3f}, {w[1]:.3f}] b={b:.3f}")
+
+
+y_prob_final = predecir_probabilidad(X_esc, w, b)
+exactitud_final = calcular_exactitud(y, y_prob_final)
+print(f"\nRESULTADO: pérdida final {calcular_perdida(y, y_prob_final):.4f} | exactitud {exactitud_final:.2%}")
+print(f"Pesos finales: w1={w[0]:.4f}, w2={w[1]:.4f}, b={b:.4f}\n")
+
+punto_de_control(
+    media is not None and desviacion is not None
+    and np.allclose(X_esc.mean(axis=0), 0, atol=1e-6) and np.allclose(X_esc.std(axis=0), 1, atol=1e-6),
+    "RETO 5 (preparación de las entradas)",
+    "El modelo entrena, pero ¿los resultados son buenos? ¿Apareció alguna advertencia (RuntimeWarning)? "
+    "Compare los valores de la lluvia (40 a 260) con los de la temperatura (21 a 31). "
+    "Recuerde lo que se hizo en la Clase 7 antes de entregar datos a un modelo. "
+    "Guarde también en 'media' y 'desviacion' los valores usados: se necesitan en los retos 6 y 7.",
+)
+
+# ============================================================
+# 3. Curva de aprendizaje
+# ============================================================
+fig, (eje1, eje2) = plt.subplots(1, 2, figsize=(12, 4.5))
+eje1.plot(historial_perdida, color="red")
+eje1.set_title("Pérdida por época")
+eje1.set_xlabel("Época")
+eje1.grid(True, alpha=0.3)
+eje2.plot(historial_exactitud, color="green")
+eje2.set_title("Exactitud por época")
+eje2.set_xlabel("Época")
+eje2.set_ylim(0, 1.05)
+eje2.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig("curva_aprendizaje.png", dpi=150)
+plt.close()
+print("Gráfico guardado: curva_aprendizaje.png")
+
+# ============================================================
+# &gt;&gt;&gt; RETO 6 &lt;&lt;&lt;  La frontera de decisión
+# ============================================================
+x1_original = np.linspace(X[:, 0].min(), X[:, 0].max(), 100)
+x1_esc = (x1_original - media[0]) / desviacion[0]
+# La frontera es la línea donde la neurona duda totalmente (probabilidad 0.5).
+# [Relator]
+x2_esc = -(w[0] * x1_esc + b) / w[1]
+
+punto_de_control(
+    x2_esc is not None and np.allclose(w[0] * x1_esc + w[1] * x2_esc + b, 0, atol=1e-6),
+    "RETO 6 (frontera de decisión)",
+    "¿Para qué valor de z la sigmoide da exactamente 0.5? Escriba esa igualdad con w1, x1, w2, x2 y b, "
+    "y despeje x2.",
+)
+x2_original = x2_esc * desviacion[1] + media[1]
+
+plt.figure(figsize=(9, 6))
+plt.scatter(X[y == 1, 0], X[y == 1, 1], color="green", edgecolors="black", label="Exitosa (1)")
+plt.scatter(X[y == 0, 0], X[y == 0, 1], color="orange", marker="s", edgecolors="black", label="No exitosa (0)")
+plt.plot(x1_original, x2_original, color="blue", linewidth=2.5, label="Frontera de decisión")
+plt.ylim(X[:, 1].min() - 0.5, X[:, 1].max() + 0.5)
+plt.title("Frontera de decisión – Cultivos de Cartago")
+plt.xlabel("Precipitación mensual (mm)")
+plt.ylabel("Temperatura promedio (°C)")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig("frontera_decision.png", dpi=150)
+plt.close()
+print("Gráfico guardado: frontera_decision.png")
+
+# ============================================================
+# &gt;&gt;&gt; RETO 7 &lt;&lt;&lt;  Usar el modelo con lotes nuevos
+# ============================================================
+lotes_nuevos = np.array([
+    [220.0, 23.5],
+    [60.0, 30.0],
+    [150.0, 26.0],
+])
+# [Relator]
+lotes_nuevos_esc = (lotes_nuevos - media) / desviacion
+
+punto_de_control(
+    lotes_nuevos_esc is not None and np.allclose(lotes_nuevos_esc, (lotes_nuevos - media) / desviacion),
+    "RETO 7 (predicción de lotes nuevos)",
+    "Los lotes nuevos deben pasar por la MISMA preparación que los datos de entrenamiento. "
+    "¿Con qué media y qué desviación? ¿Las de los 3 lotes nuevos o las de los 120 lotes?",
+)
+
+for (lluvia, temperatura), probabilidad in zip(lotes_nuevos, predecir_probabilidad(lotes_nuevos_esc, w, b)):
+    decision = "EXITOSA" if probabilidad &gt;= 0.5 else "NO EXITOSA"
+    print(f"Lluvia {lluvia:&gt;5.1f} mm | Temp {temperatura:&gt;4.1f} °C -&gt; {probabilidad:.2%} -&gt; {decision}")
+
+print("\n*** ¡Todos los retos superados! Perceptrón completo construido desde cero. ***")</code></pre>
+
+                <!-- Salida final de consola -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-white">Salida Final de la Consola (Para pegar en el Anexo del Word)</h3>
+                        <button onclick="copyText('console-output')" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar Salida
+                        </button>
+                    </div>
+                    <pre id="console-output" class="bg-dark-950 p-4 rounded-xl border border-slate-800 text-xs text-emerald-300 overflow-x-auto"><code>Datos: X tiene forma (120, 2) | y tiene forma (120,)
+
+[OK] RETO 1 (vectorización) superado
+[OK] RETO 2 (función sigmoide) superado
+[OK] RETO 3 (función de pérdida) superado
+[OK] RETO 4A (gradientes) superado
+[OK] RETO 4B (actualización de pesos) superado
+Época   1 | Pérdida: 0.6931 | Exactitud: 54.17% | w=[0.028, -0.025] b=0.004
+Época 100 | Pérdida: 0.3183 | Exactitud: 90.83% | w=[1.333, -1.180] b=0.181
+Época 200 | Pérdida: 0.2675 | Exactitud: 90.83% | w=[1.849, -1.651] b=0.237
+Época 300 | Pérdida: 0.2467 | Exactitud: 90.83% | w=[2.180, -1.957] b=0.270
+Época 400 | Pérdida: 0.2353 | Exactitud: 90.00% | w=[2.426, -2.184] b=0.295
+Época 500 | Pérdida: 0.2281 | Exactitud: 90.00% | w=[2.622, -2.366] b=0.315
+
+RESULTADO: pérdida final 0.2281 | exactitud 90.00%
+Pesos finales: w1=2.6217, w2=-2.3658, b=0.3152
+
+[OK] RETO 5 (preparación de las entradas) superado
+Gráfico guardado: curva_aprendizaje.png
+[OK] RETO 6 (frontera de decisión) superado
+Gráfico guardado: frontera_decision.png
+[OK] RETO 7 (predicción de lotes nuevos) superado
+Lluvia 220.0 mm | Temp 23.5 °C -> 99.48% -> EXITOSA
+Lluvia  60.0 mm | Temp 30.0 °C -> 0.11% -> NO EXITOSA
+Lluvia 150.0 mm | Temp 26.0 °C -> 55.65% -> EXITOSA
+
+*** ¡Todos los retos superados! Perceptrón completo construido desde cero. ***</code></pre>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPTS INTERACTIVOS -->
+    <script>
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 2200);
+            });
+        }
+
+        function updateSigmoid(zVal) {
+            const z = parseFloat(zVal);
+            const prob = 1 / (1 + Math.exp(-z));
+            const pct = (prob * 100).toFixed(2) + '%';
+            document.getElementById('sig-z-label').innerText = 'Puntaje z = ' + z.toFixed(1);
+            const probEl = document.getElementById('sig-prob');
+            const msgEl = document.getElementById('sig-msg');
+            probEl.innerText = pct;
+
+            if (Math.abs(z) < 0.05) {
+                probEl.className = 'text-2xl font-extrabold text-amber-400 font-mono';
+                msgEl.className = 'text-[11px] text-amber-300';
+                msgEl.innerText = 'Justo en la frontera (50% duda)';
+            } else if (z > 0) {
+                probEl.className = 'text-2xl font-extrabold text-emerald-400 font-mono';
+                msgEl.className = 'text-[11px] text-emerald-300';
+                msgEl.innerText = 'Predicción: COSECHA EXITOSA (1)';
+            } else {
+                probEl.className = 'text-2xl font-extrabold text-rose-400 font-mono';
+                msgEl.className = 'text-[11px] text-rose-300';
+                msgEl.innerText = 'Predicción: NO EXITOSA (0)';
+            }
+        }
+    </script>
+</body>
+</html>
